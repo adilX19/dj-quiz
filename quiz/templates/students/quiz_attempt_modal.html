@@ -1,0 +1,64 @@
+{% extends "students/details.html" %}
+
+{% block quiz_form %}
+  <div class="card" style="width: 52rem;">
+    <div class="card-body">
+      <form method="POST" action=".">
+        {% csrf_token %}
+    
+      <div class="modal-header">
+          <h5 class="modal-title">Attempt Quiz</h5>
+          <span style="font-size: 20px;">Question: {{ question.order|add:1 }}/{{ total_questions }}</span>
+        </div>
+    
+        <div class="modal-body ms-3">
+          <p style="font-size: 23px;">Q<span class="order">{{ question.order|add:1 }}</span>: {{ question.text }}</p>
+          <p>
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+              <ul class="list-group ms-4">
+                {% for answer in question.answers.all %}
+                <label style="cursor: pointer;">
+                    <li class="list-group-item answer">
+                      <input type="radio" id="{{ answer.text }}" class="answer_input" name="{{ question.id }}" value="{{ answer.id }}">
+                      {{ answer.text }}
+                    </li>   
+                  </label>
+                {% endfor %}
+              </ul>
+            </div>
+          </p>
+        </div>
+    
+        <div class="modal-footer">
+          <button type="submit" id="next_q_btn" class="btn btn-primary">Next</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+
+{% block javascript %}
+  <script>
+    const answers = document.querySelectorAll('.answer');
+    var no_option_selected = true;
+    answers.forEach(answer => {
+      answer.addEventListener('click', function() {
+        answers.forEach(answer => answer.classList.remove('border', 'border-success'));
+        answer.classList.add('border', 'border-success');
+
+        document.querySelectorAll('.answer_input').forEach(input => {
+          if(input.checked) {
+            no_option_selected = false
+            document.querySelector('#next_q_btn').classList.remove('disabled')
+          }
+        });
+      });
+    });
+
+    if (no_option_selected){
+      try {
+        document.querySelector('#next_q_btn').classList.add('disabled')
+      } catch (e) {}
+    }
+  </script>
+{% endblock %}

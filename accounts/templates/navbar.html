@@ -1,0 +1,64 @@
+<nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand text-warning ms-2" href="#" style="font-size: 30px; padding-right: 20px;">
+      <i class="fab fa-medapps"></i> Quizo
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      {% if request.user.is_authenticated %}
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% if request.user.student_profile %}/quizzes/students/home/{% else %}/quizzes/teachers/home/{% endif %}">Home</a>
+        </li>
+        {% if request.user.teacher_profile %}
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'classroom_list' %}">Classrooms</a>
+          </li>
+        {% elif request.user.student_profile %}
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'student_classrooms' %}">Your Classrooms</a>
+        </li>
+        {% endif %}
+      </ul>
+      <span>
+        <form class="d-flex" action="" method="GET">
+          <div class="input-group" id="search-component">
+            <input type="text" name="query" id="search-input" class="form-control" placeholder="Search">
+            <button type="submit" id="search-button" class="input-group-text"><i class="fas fa-search"></i></button>
+          </div>
+        </form>
+      </span>
+      <span class="p-3">
+        <a href="{% url 'logout' %}" class="btn btn-sm btn-danger">logout</a>
+      </span>
+      <span style="margin-bottom: -25px;">
+
+        <a class="nav-link" href="{% if request.user.student_profile %}{% url 'student_profile_details' %}{% else %}{% url 'teacher_profile_details' %}{% endif %}">
+          <img src="{{ request.user.profile_image.url }}" style="width: 30px; height: 30px; border-radius: 50%;" alt="">
+          <p style="font-size: 12px;" class="text-white">{{ request.user.username }}</p>
+        </a>
+
+      </span>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<script>
+  document.getElementById('search-component').addEventListener('mouseover', hoverOverForm);
+  document.getElementById('search-component').addEventListener('mouseout', hoverOutForm);
+
+  function hoverOverForm(event) {
+    document.querySelector('#search-input').style.border = "2px solid #FFC107";
+    document.querySelector('#search-button').style.backgroundColor = "#FFC107";
+    document.querySelector('#search-button').style.color = "black";
+  }
+
+  function hoverOutForm(event) {
+    document.querySelector('#search-input').style.border = "none";
+    document.querySelector('#search-button').style.backgroundColor = "#424141";
+    document.querySelector('#search-button').style.color = "rgb(142, 142, 142)";
+  }
+</script>

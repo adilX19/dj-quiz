@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %} Add New Question {% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-dark text-white">
+      <h4 class="mb-0">➕ Add New Question</h4>
+    </div>
+
+    <form method="POST" class="p-4">
+      {% csrf_token %}
+
+      <!-- Question Fields -->
+      <div class="mb-4">
+        <label for="{{ form.text.id_for_label }}" class="form-label fw-bold">Question Text</label>
+        {{ form.text }}
+      </div>
+
+      <div class="mb-2">
+        <label for="{{ form.score.id_for_label }}" class="form-label fw-bold">Score</label>
+        {{ form.score }}
+      </div>
+
+      <hr class="my-4">
+
+      <!-- Answers Section -->
+      <div class="mb-3">
+        <h5 class="fw-semibold">Answer Options</h5>
+        {{ answer_forms.management_form }}
+        <div class="row g-3">
+          {% for answer_form in answer_forms %}
+          <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="{{ answer_form.text.id_for_label }}" class="form-label">Answer Text</label>
+                  {{ answer_form.text }}
+                </div>
+                <div class="form-check">
+                  {{ answer_form.is_correct }}
+                  <label class="form-check-label" for="{{ answer_form.is_correct.id_for_label }}">
+                    Mark as Correct
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="text-end mt-4">
+        <button type="submit" class="btn btn-success px-4 py-2">
+          <i class="bi bi-check-circle me-1"></i> Save Question
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}{{ quiz.title }} | Manage Questions{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+  <div class="row">
+    <!-- Main Content: Questions -->
+    <div class="col-lg-9">
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          <h2 class="card-title">{{ quiz.title }}</h2>
+          <p class="text-muted mb-2">Created on {{ quiz.date_created|date:"M d, Y" }}</p>
+          <span class="badge" style="background-color: {{ quiz.subject.badge_color }};">{{ quiz.subject.name }}</span>
+          <hr>
+          <h5 class="mb-4">Questions</h5>
+
+          <div class="questions" id="question-list">
+            {% for question in quiz.questions.all %}
+            <div class="card mb-3 shadow-sm border-start" data-id="{{ question.id }}">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="w-100">
+                    <p class="fw-bold mb-1">Q{{ question.order|add:1 }}. {{ question.text }}</p>
+                    <div class="row row-cols-1 row-cols-md-2 g-2 mt-2">
+                      {% for answer in question.answers.all %}
+                      <div class="col">
+                        <div class="p-2 border border-{% if answer.is_correct %}success{% else %}danger{% endif %} rounded text-muted">
+                          {{ answer.text }}
+                        </div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <div class="ms-3 text-end">
+                    <a href="{% url 'update_question' quiz.id question.id %}" style="font-size: 10px;" class="btn btn-sm btn-outline-primary mb-2">Edit</a><br>
+                    {% include "delete_modal.html" with object_id=question.id pattern_name='delete_question' %}
+
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% empty %}
+            <p class="text-muted">No questions added yet.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-3">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h5 class="card-title">🛠 Operations</h5>
+          <a href="{% url 'create_question' quiz.id %}" class="btn btn-success w-100 mb-2">+ Add Question</a>
+          <a href="{% url 'update_quiz' quiz.id %}" class="btn btn-outline-secondary w-100 mb-2">Edit Quiz</a>
+          {% include "delete_quiz_modal.html" with quiz_object_id=quiz.id quiz_pattern_name='delete_quiz' %}
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h6 class="mb-2 fw-bold">📊 Quiz Stats</h6>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between">
+              Attempted By <span class="text-danger">{{ quiz.takenquiz_set.count }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              Total Questions <span>{{ quiz.questions.count }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h6 class="mb-0">📝 Summary</h6>
+        </div>
+        <div class="card-body">
+          <p class="mb-0">{{ quiz.summary }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+  $(document).ready(function () {
+    $('.questions').sortable({
+      stop: function (event, ui) {
+        let questions_order = {};
+        $('#question-list').children().each(function () {
+          $(this).find('.order').text($(this).index() + 1);
+          questions_order[$(this).data('id')] = $(this).index();
+        });
+        $.ajax({
+          type: 'POST',
+          url: '{% url "order_questions" %}',
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          data: JSON.stringify(questions_order),
+        });
+      }
+    });
+  });
+</script>
+{% endblock %}

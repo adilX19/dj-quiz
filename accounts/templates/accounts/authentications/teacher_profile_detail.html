@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+{% block title %} Dashboard {% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Profile Header -->
+    <div class="card mb-4 shadow-sm">
+        <div class="row g-0 align-items-center">
+            <div class="col-md-3 text-center p-3">
+                <img src="{{ teacher_profile.user.profile_image.url|default:'https://via.placeholder.com/150' }}"
+                     class="rounded-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+            </div>
+            <div class="col-md-9">
+                <div class="card-body">
+                    <h3>{{ teacher_profile.user.get_full_name }}</h3>
+                    <p class="text-muted">@{{ teacher_profile.user.username }} — {{ teacher_profile.user.email }}</p>
+                    <br>
+                    {% if request.user.teacher_profile.id == teacher_profile.id %}
+                        <a href="{% url 'update_profile' %}" style="font-size: 12px;" class="btn btn-sm btn-primary">Edit Profile
+                            <i class="bi bi-gear"></i>
+                        </a> &emsp14;
+                        <a href="{% url 'change_password' %}" style="font-size: 12px;" class="btn btn-sm btn-danger">Change Password
+                        </a>
+
+                    {% else %}
+                        <span class="mb-1 badge" style="width: 180px;height: 70px;background: rgba(229,225,225,0.55);color: #605d5d;font-size: 15px;padding: 5px;line-height: 1.8rem;">
+                            Total Quizzes <br>
+                            <span style="font-size: 22px !important;">{{ teacher_profile.created_quizzes.count }}</span>
+                        </span>
+                        &emsp14;&emsp14;&emsp14;
+                        <span class="mb-1 badge" style="width: 180px;height: 70px;background: rgba(229,225,225,0.55);color: #605d5d;font-size: 15px;padding: 5px;line-height: 1.8rem;">
+                            Total Classrooms <br>
+                            <span style="font-size: 22px !important;">{{ teacher_profile.classrooms.count }}</span>
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="mb-4 mt-5">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-3">📚 Classrooms</h4>
+            {% if request.user.teacher_profile.id == teacher_profile.id %}
+                <a href="{% url 'classroom_create' %}" class="btn btn-primary btn-sm">+ Create Classroom</a>
+            {% endif %}
+        </div>
+        <div class="row">
+            {% for classroom in classrooms %}
+                <div class="col-md-6">
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body">
+                            <h5>{{ classroom.name }}</h5>
+                            <p class="mb-1"><strong>Slug:</strong> {{ classroom.slug }}</p>
+                            <p class="mb-1"><strong>Students:</strong> {{ classroom.students.count }}</p>
+                            <br>
+                            <a href="{% url 'classroom_detail' classroom.slug %}" class="btn btn-sm btn-outline-primary">View</a>
+                            {% if request.user.student_profile %}
+                                {% if classroom|already_joined_by_student:request.user.student_profile %}
+                                <a href="" href="" data-slug="{{ classroom.slug }}" class="btn btn-danger btn-sm leave-classroom-btn">
+                                    Leave Classroom
+                                </a>
+                                {% else %}
+                                <a href="" data-slug="{{ classroom.slug }}" class="btn btn-success btn-sm join-classroom-btn">
+                                    Join Classroom
+                                </a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">You haven't created any classrooms yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Quizzes Created -->
+    <div class="mb-4 mt-2">
+        <h4 class="mb-4">📝 Quizzes Created</h4>
+        <ul class="list-group">
+            {% for quiz in quizzes %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>{{ quiz.title }}</span>
+                <span>
+                    {% if request.user.teacher_profile %}
+                        <a href="{% url 'quiz_results' quiz.slug %}" class="btn btn-sm btn-outline-success">View Results</a>
+                        <a href="{% url 'quiz_cms_details' quiz.id %}" class="btn btn-sm btn-outline-info">Update</a>
+                    {% else %}
+                        <a href="{% url 'quiz_details' quiz.id %}" class="btn btn-sm btn-outline-success">View</a>
+                    {% endif %}
+                </span>
+            </li>
+            {% empty %}
+            <p class="text-muted">You haven't created any quizzes yet.</p>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>
+
+<script>
+
+    function sendRequest(url, action) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+        // Add CSRF token header
+        const csrftoken = getCookie('csrftoken');
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+
+        xhr.onload = function () {
+            if (xhr.status === 200 || xhr.status === 302) {
+                action == "join"? alert("Successfully joined the classroom!") : alert("Successfully Left the classroom!")
+                location.reload();
+            } else {
+                alert("Failed to perform classroom operation.");
+            }
+        };
+
+        xhr.send();
+    }
+
+    try {
+        document.querySelectorAll(".join-classroom-btn").forEach(join_btn => {
+            join_btn.addEventListener("click", (event) => {
+                event.preventDefault();
+                const slug = event.target.dataset.slug;
+                const url = `/quizzes/classrooms/${slug}/join/`;
+                sendRequest(url, "join");
+
+            });
+        });
+    } catch (e) { }
+
+
+    try {
+        document.querySelectorAll(".leave-classroom-btn").forEach(leave_btn => {
+            leave_btn.addEventListener("click", (event) => {
+                event.preventDefault();
+                const slug = event.target.dataset.slug;
+                const url = `/quizzes/classrooms/${slug}/leave/`;
+                console.log("Leave Classroom");
+                sendRequest(url, "leave");
+            });
+        })
+    } catch(e) { }
+
+    // Helper to read CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+{% endblock %}

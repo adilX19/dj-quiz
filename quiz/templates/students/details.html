@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+{% block title %}Quiz Detail{% endblock %}
+
+{% block content %}
+<style>
+  .progress-ring {
+    stroke-dasharray: 377;
+    stroke-dashoffset: 377;
+    transition: stroke-dashoffset 1s ease-out;
+  }
+</style>
+
+    {% block quiz_form %}
+
+    <div class="container mt-5">
+      <div class="row">
+        <!-- Left Content -->
+        <div class="col-lg-8 mb-4">
+          {% if messages %}
+          {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+          {% endif %}
+
+          <div class="card shadow border border-{{ quiz.subject.badge_color }}">
+            <div class="card-body">
+              <h2 class="card-title">{{ quiz.title }}</h2>
+              <hr class="text-{{ quiz.subject.badge_color }}">
+              <p class="card-text">{{ quiz.summary }}</p>
+
+              <div class="mt-4">
+                <p><strong>Created By:</strong> <span class="text-success">{{ quiz.teacher.user.full_name }}</span></p>
+                <p><strong>Date Created:</strong> <span class="text-muted">{{ quiz.date_created }}</span></p>
+                <p><strong>Questions:</strong> <span class="text-primary">{{ quiz.questions.count }}</span></p>
+                <p><strong>Attempts:</strong> <span class="text-primary">{{ quiz.takenquiz_set.count }} Students</span></p>
+                <p><strong>Subject:</strong> <span class="badge bg-{{ quiz.subject.badge_color }}">{{ quiz.subject }}</span></p>
+              </div>
+
+              <div class="mt-3">
+                {% if quiz|already_attempted_quiz_by:request.user.student_profile %}
+                <a href="{% url 're_attempt_quiz' quiz.id %}" class="btn btn-outline-danger">Re-attempt Quiz</a>
+                {% else %}
+                <a href="{% url 'attempt_quiz' quiz.id %}" class="btn btn-outline-success">Attempt Quiz</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+    <!-- Right Sidebar -->
+    <div class="col-lg-4">
+      <!-- Teacher Profile -->
+      <div class="card text-white bg-dark shadow-sm mb-4">
+        <div class="card-body text-center">
+          <img src="{{ quiz.teacher.user.profile_image.url }}" class="rounded-circle mb-2" width="70" height="70" alt="Profile">
+          <h5 class="card-title mb-0">{{ quiz.teacher.user.full_name }}</h5>
+          <p class="text-muted mb-1">Total Quizzes: {{ quiz.teacher.created_quizzes.count }}</p>
+          <a href="{% url 'teacher_profile_details_for_student' quiz.teacher.id %}" class="btn btn-outline-light btn-sm">Visit Profile</a>
+          <hr>
+          <div class="d-flex justify-content-center gap-3">
+            <a href="{{ quiz.teacher.instagram_profile }}" target="_blank"><i class="fab fa-instagram text-danger"></i></a>
+            <a href="{{ quiz.teacher.facebook_profile }}" target="_blank"><i class="fab fa-facebook text-primary"></i></a>
+            <a href="{{ quiz.teacher.github_profile }}" target="_blank"><i class="fab fa-github text-white"></i></a>
+            <a href="{{ quiz.teacher.twitter_profile }}" target="_blank"><i class="fab fa-twitter text-info"></i></a>
+          </div>
+        </div>
+      </div>
+
+      {% if quiz|already_attempted_quiz_by:request.user.student_profile %}
+      <!-- Score -->
+      <div class="card text-center shadow-sm mb-4">
+        <div class="card-body py-5">
+          <div class="progress-circle mx-auto mb-3" data-score="{{ obtained_marks }}" data-total="{{ total_marks }}">
+            <svg width="140" height="140">
+              <circle cx="70" cy="70" r="60" stroke="#e6e6e6" stroke-width="10" fill="none" />
+              <circle class="progress-ring" cx="70" cy="70" r="60"
+                      stroke="#28a745" stroke-width="10" fill="none" stroke-linecap="round"
+                      transform="rotate(-90 70 70)" />
+              <text x="70" y="75" text-anchor="middle" fill="#28a745" font-size="22px" font-weight="bold">
+                {{ obtained_marks }}/{{ total_marks }}
+              </text>
+            </svg>
+          </div>
+          <h5 class="text-success">Your Score</h5>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Related Quizzes -->
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-warning text-center">
+          <h5 class="mb-0">📚 Related Quizzes</h5>
+        </div>
+        <div class="card-body p-3">
+          <ul class="list-group list-group-flush">
+            {% for quiz in related_quizzes %}
+            <li class="list-group-item">
+              <a href="{% url 'quiz_details' quiz.id %}" class="text-decoration-none">{{ quiz.title }}</a>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">No related quiz found.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endblock %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+  setTimeout(() => {
+    const message = document.querySelector('.message');
+    if (message) message.remove();
+  }, 4000);
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".progress-circle").forEach(circle => {
+      const score = parseFloat(circle.dataset.score);
+      const total = parseFloat(circle.dataset.total);
+      const percent = Math.min((score / total) * 100, 100);
+
+      const ring = circle.querySelector(".progress-ring");
+      const radius = 60;
+      const circumference = 2 * Math.PI * radius;
+      const offset = circumference - (percent / 100) * circumference;
+
+      ring.style.strokeDashoffset = offset;
+    });
+  });
+</script>
+{% endblock %}

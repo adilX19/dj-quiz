@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %} My Classrooms {% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">📚 My Classrooms</h2>
+        {% if request.user.teacher_profile %}
+            <a href="{% url 'classroom_create' %}" class="btn btn-success">
+                <i class="bi bi-plus-circle me-1"></i> Create Classroom
+            </a>
+        {% endif %}
+    </div>
+
+    {% if object_list %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for classroom in object_list %}
+        <div class="col">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-house-door-fill text-primary me-2"></i>{{ classroom.name }}
+                    </h5>
+                    <p class="card-text text-muted">
+                        <strong>Students:</strong> {{ classroom.students.count }} <br>
+                        <strong>Teacher:</strong> {{ classroom.teacher.user.full_name }}
+                        <br>
+                        {% if classroom.quizzes.last %}
+                            <strong>Latest Quiz:</strong> <a href="{% url 'quiz_details' classroom.quizzes.last.id %}">{{ classroom.quizzes.last.title }}</a>
+                        {% else %}
+                            <p class="card-text text-muted mt-3">No Quizzes added yet.</p>
+                        {% endif %}
+                    </p>
+                </div>
+                {% if request.user.teacher_profile %}
+                    <div class="card-footer bg-transparent border-0 d-flex justify-content-end">
+                        <a href="{% url 'classroom_detail' classroom.slug %}" class="btn btn-outline-primary btn-sm me-2">View</a>
+                        <a href="{% url 'classroom_edit' classroom.slug %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+                    </div>
+                {% elif request.user.student_profile %}
+                    <div class="card-footer bg-transparent border-0 d-flex justify-content-end">
+                        <a href="{% url 'classroom_detail' classroom.slug %}" class="btn btn-outline-primary btn-sm me-2">View</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        You haven't created any classrooms yet.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}
+{% if object %} Update Quiz {% else %} Create Quiz {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Include DateTimePicker CSS and JS -->
+<link rel="stylesheet" href="{% static 'css/jquery.datetimepicker.css' %}" />
+<script src="{% static 'js/jquery.js' %}"></script>
+<script src="{% static 'js/jquery.datetimepicker.full.min.js' %}"></script>
+
+<div class="container my-5">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-dark text-white">
+      <h4 class="mb-0">
+        {% if object %} ✏️ Update Quiz {% else %} ➕ Create New Quiz {% endif %}
+      </h4>
+    </div>
+
+    <div class="card-body">
+      <form method="POST" novalidate>
+        {% csrf_token %}
+
+        <!-- Quiz Title -->
+        <div class="mb-3">
+          <label for="{{ form.title.id_for_label }}" class="form-label fw-bold">Title</label>
+          {{ form.title|add_class:"form-control" }}
+        </div>
+
+        <!-- Summary -->
+        <div class="mb-3">
+          <label for="{{ form.summary.id_for_label }}" class="form-label fw-bold">Summary</label>
+          {{ form.summary|add_class:"form-control" }}
+        </div>
+
+        <!-- Subject -->
+        <div class="mb-3">
+          <label for="{{ form.subject.id_for_label }}" class="form-label fw-bold">Subject</label>
+          {{ form.subject|add_class:"form-select" }}
+        </div>
+
+        <!-- Score -->
+        <div class="mb-3">
+          <label for="{{ form.score.id_for_label }}" class="form-label fw-bold">Total Score</label>
+          {{ form.score|add_class:"form-control" }}
+        </div>
+
+        <!-- Public/Private -->
+        <div class="mb-3">
+          <label for="{{ form.is_public.id_for_label }}" class="form-label fw-bold">Visibility</label>
+          <div class="form-check">
+            {{ form.is_public }}
+            <label class="form-check-label" for="{{ form.is_public.id_for_label }}">
+              Make this quiz public
+            </label>
+          </div>
+        </div>
+
+        <!-- Classroom -->
+        <div class="mb-3">
+          <label for="{{ form.classroom.id_for_label }}" class="form-label fw-bold">Assign to Classroom (optional)</label>
+          {{ form.classroom|add_class:"form-select" }}
+        </div>
+
+        <!-- Starts At -->
+        <div class="mb-3">
+          <label for="{{ form.starts_at.id_for_label }}" class="form-label fw-bold">Starts At</label>
+          {{ form.starts_at|add_class:"form-control datetimepicker" }}
+        </div>
+
+        <!-- Ends At -->
+        <div class="mb-3">
+          <label for="{{ form.ends_at.id_for_label }}" class="form-label fw-bold">Ends At</label>
+          {{ form.ends_at|add_class:"form-control datetimepicker" }}
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-end mt-4">
+          <button type="submit" class="btn btn-success px-4 py-2">
+            {% if object %} <i class="bi bi-pencil-square"></i> Update Quiz {% else %} <i class="bi bi-plus-circle"></i> Create Quiz {% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  jQuery('.datetimepicker').datetimepicker({ format: 'Y-m-d H:i' });
+</script>
+{% endblock %}

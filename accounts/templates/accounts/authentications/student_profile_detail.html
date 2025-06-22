@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Your Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-4 w-75">
+    <!-- Profile Header -->
+    <div class="card shadow-sm mb-4">
+        <div class="row g-0 align-items-center">
+            <div class="col-md-3 text-center p-3">
+                {% if request.user.profile_image %}
+                <img src="{{ request.user.profile_image.url }}" class="img-fluid rounded-circle border" style="width: 150px; height: 150px; object-fit: cover;">
+                {% else %}
+                <img src="https://via.placeholder.com/150" class="img-fluid rounded-circle border">
+                {% endif %}
+            </div>
+            <div class="col-md-9">
+                <div class="card-body">
+                    <h3 class="card-title mb-0">
+                        {{ student.user.get_full_name }}
+                    </h3>
+                    <p class="text-muted">@{{ student.user.username }} | {{ request.user.email }}</p>
+                    <p class="card-text">{{ student.bio }}</p>
+                </div>
+                <div class="card-footer text-muted">
+                    <a href="{% url 'update_profile' %}" style="font-size: 12px;" class="btn btn-sm btn-primary">Edit Profile
+                        <i class="bi bi-gear"></i>
+                    </a> &emsp14;
+                    <a href="{% url 'change_password' %}" style="font-size: 12px;" class="btn btn-sm btn-danger">Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interests -->
+    <div class="mb-4">
+        <h4 class="mb-2">🎯 Your Interests</h4>
+        {% if student.interests.all %}
+            {% for subject in student.interests.all %}
+                <span class="badge bg-{{ subject.badge_color }} rounded-pill">{{ subject.name }}</span>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">No interests added yet.</p>
+        {% endif %}
+    </div>
+    <br>
+
+    <!-- Attempted Quizzes -->
+
+    <div class="float-start w-100">
+        <ul class="nav nav-tabs mt-4" id="quizTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="attempted-tab" data-bs-toggle="tab" data-bs-target="#attempted" type="button" role="tab">
+                    ✅ Attempted Quizzes
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="unattempted-tab" data-bs-toggle="tab" data-bs-target="#unattempted" type="button" role="tab">
+                    ⏰ Pending Quizzes
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="classroom-tab" data-bs-toggle="tab" data-bs-target="#classroom" type="button" role="tab">
+                    🏫 Classrooms Joined
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-3" id="quizTabsContent">
+
+            <!-- Public Quizzes Tab -->
+            <div class="tab-pane fade show active" id="attempted" role="tabpanel" aria-labelledby="attempted-tab">
+                <h4 class="mb-2"></h4>
+                {% if attempted_quizzes %}
+                    <div class="row">
+                        {% for taken in attempted_quizzes %}
+                            <div class="ms-4 col col-md-5 card mb-3 border-0" style="border-left: 5px solid #0d6efd; box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                    <div class="p-3">
+                                        <h6 class="card-title mb-1">{{ taken.quiz.title }}</h6>
+                                        <p class="mb-0 text-muted">
+                                            Subject: <span class="lead" style="font-size: 15px;">{{ taken.quiz.subject.name }}</span><br>
+                                            Score: <strong>{{ taken.obtained_marks }}</strong> / {{ taken.quiz.score }}
+                                        </p>
+                                    </div>
+                                    <a href="{% url 'quiz_details' taken.quiz.id %}" class="btn btn-outline-primary btn-sm">Review</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">You haven't attempted any quizzes yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Un-attempted Quizzes -->
+            <div class="tab-pane fade" id="unattempted" role="tabpanel" aria-labelledby="unattempted-tab">
+                <h4 class="mb-2"></h4>
+                {% if unattempted_quizzes %}
+                <div class="row">
+                    {% for quiz in unattempted_quizzes %}
+                    <div class="ms-4 col col-md-5 card mb-3 border-0" style="border-left: 5px solid #0d6efd; box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div class="p-3">
+                                <h6 class="card-title mb-1">{{ quiz.title }}</h6>
+                                <p class="mb-0 text-muted">
+                                    Subject: <span class="lead" style="font-size: 15px;">{{ quiz.subject.name }}</span>
+                                </p>
+                            </div>
+                            <a href="{% url 'quiz_details' quiz.id %}" class="btn btn-outline-primary btn-sm">Attempt</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">You haven't any un-attempted quizzes yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Joined Classrooms -->
+            <div class="tab-pane fade" id="classroom" role="tabpanel" aria-labelledby="classroom-tab">
+                <h4 class="mb-2"></h4>
+
+                <div class="card p-3">
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        <label for="join_slug" class="form-label">🔗 Join a Classroom (via link or code)</label>
+                        <div class="input-group">
+                            <input type="text" name="slug" id="join_slug" class="form-control" placeholder="Enter classroom slug/code">
+                            <button type="submit" class="btn btn-outline-primary">Join</button>
+                        </div>
+                    </form>
+                </div>
+
+
+                <div class="row mt-2 p-2">
+                    {% for classroom in student_classrooms %}
+                    <div class="col">
+                        <div class="card h-100" style="border-left: 5px solid #0d6efd; box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="bi bi-house-door-fill text-primary me-2"></i>{{ classroom.name }}
+                                </h5>
+                                <p class="card-text text-muted mb-2">
+                                    <strong>Students:</strong> {{ classroom.students.count }}
+                                </p>
+                                <p class="card-text">
+                                    <strong>Join Link:</strong><br>
+                                    <code>{{ request.build_absolute_uri }}</code>
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 d-flex justify-content-end">
+                                <a href="{% url 'classroom_detail' classroom.slug %}" class="btn btn-outline-primary btn-sm me-2">View</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                        <div class="card">
+                            <div class="card-body text-secondary">
+                                You haven't joined any classrooms yet.
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+
+
+        </div>
+
+    </div>
+
+
+
+
+</div>
+{% endblock %}

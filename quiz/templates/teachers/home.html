@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold">Welcome, {{ request.user.get_full_name }}</h2>
+      <p class="text-muted mb-0">Here's an overview of your teaching activity.</p>
+    </div>
+  </div>
+
+  <!-- Dashboard Grid -->
+  <div class="row">
+    <!-- Quiz Cards -->
+    <div class="col-lg-9">
+      <div class="row">
+        {% for quiz in quizzes %}
+        <div class="col-md-6 mb-4">
+          <div class="card border-0 h-100" style="box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <div>
+                <span class="badge" style="background-color: {{ quiz.subject.badge_color }};">
+                  {{ quiz.subject.name }}
+                </span>
+                <h5 class="card-title mt-2">{{ quiz.title }}</h5>
+                <p class="text-muted small mb-2">Created {{ quiz.date_created|date:"M d, Y H:i" }}</p>
+                <p class="card-text">{{ quiz.summary|truncatewords:20 }}</p>
+              </div>
+              <div class="mt-3">
+                <a href="{% url 'quiz_cms_details' quiz.id %}" class="btn btn-sm btn-outline-primary w-100">Open Quiz</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">You haven't created any quizzes yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Sidebar: Actions & Stats -->
+    <div class="col-lg-3">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h5 class="card-title mb-3">🛠️ Quick Actions</h5>
+          <a href="{% url 'create_quiz' %}" class="btn btn-primary w-100 mb-2">+ Create New Quiz</a>
+          <a href="{% url 'classroom_create' %}" class="btn btn-outline-secondary w-100">+ Create Classroom</a>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="card-title">📊 Stats</h6>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Total Quizzes</span>
+              <strong>{{ quizzes|length }}</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Total Classrooms</span>
+              <strong>{{ request.user.teacher_profile.classrooms.count }}</strong>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

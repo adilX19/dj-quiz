@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} Login {% endblock %}
+
+{% block content %}
+  <div class="float-start">
+    <h1 class="text-primary p-3">Login to your account</h1>
+    <form action="" method="POST">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <p><input type="submit" class="btn btn-success" value="Login"></p>
+      <a href="{% url 'reset_password' %}">forgot password?</a>
+    </form>
+    <small>Not have an account?</small>
+    <a href="{% url 'signup' %}">SignUp</a>
+  </div>
+
+  <div class="float-end">
+    <img src="{% static 'images/utility_images/login_page.png' %}" alt="">
+  </div>
+
+  <script>
+    document.getElementById('id_username').className = "form-control"
+    document.getElementById("id_password").className = "form-control"
+  </script>
+{% endblock %}
