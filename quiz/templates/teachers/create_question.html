@@ -31,6 +31,7 @@
         {{ answer_forms.management_form }}
         <div class="row g-3">
           {% for answer_form in answer_forms %}
+            {{ answer_form.id }}
           <div class="col-md-6" id="answer-choice-{{ forloop.counter }}">
             <div class="card h-100 shadow-sm">
               <div class="card-body">

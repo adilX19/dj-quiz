@@ -50,12 +50,9 @@ class Quiz(models.Model):
   date_created   = models.DateTimeField(auto_now_add=True)
   date_updated   = models.DateTimeField(auto_now=True)
 
-  starts_at = models.DateTimeField()
-  ends_at   = models.DateTimeField()
-
   def clean(self):
     if not len(self.title) > 20:
-      raise ValidatioError({
+      raise ValidationError({
         'title': 'Title should have at least 20 letters'
       })
 

@@ -7,7 +7,7 @@ from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 from ..models import Quiz, Question, Answer, TakenQuiz, StudentAnswer
-from ..forms import QuestionForm, QuizForm, AnswersFormSet, AnswerForm
+from ..forms import QuestionForm, QuizForm, AnswersFormSet
 
 from accounts.models import StudentProfile
 
@@ -65,14 +65,11 @@ class QuestionCreateUpdateView(CreateView):
   template_name = 'teachers/create_question.html'
   model = Question
   quiz = None
+  success_url = None
   question = None
-
-  def __init__(self):
-    self.success_url = None
 
   def dispatch(self, request, pk, question_id=None, *args, **kwargs):
     self.quiz = get_object_or_404(Quiz, id=pk, teacher__user=request.user)
-    self.success_url = reverse_lazy('quiz_cms_details', kwargs={'pk': self.quiz.id})
 
     if question_id:
       self.question = get_object_or_404(Question, id=question_id, quiz=self.quiz)
@@ -82,20 +79,6 @@ class QuestionCreateUpdateView(CreateView):
     self.object = None
     form = QuestionForm(request.POST or None, instance=self.question)
     answer_forms = AnswersFormSet(instance=self.question, data=None)
-
-    existing = answer_forms.total_form_count()
-    if existing < 4:
-        AnswerFormSetFactory = inlineformset_factory(
-            Question,
-            Answer,
-            form=AnswerForm,
-            fields=['text', 'is_correct'],
-            extra=(4 - existing),
-            max_num=4,
-            can_delete=True
-        )
-        answer_forms = AnswerFormSetFactory(instance=self.question)
-
     return self.render_to_response(
       self.get_context_data(
         form=form, answer_forms=answer_forms
@@ -105,21 +88,11 @@ class QuestionCreateUpdateView(CreateView):
   def post(self, request, pk, *args, **kwargs):
     self.object = None
     form = QuestionForm(request.POST, instance=self.question)
-    answer_forms = AnswersFormSet(instance=self.question, data=self.request.POST)
+    answer_forms = AnswersFormSet(request.POST, instance=self.question)
 
-    print(self.request.POST)
-    answers = {i: self.request.POST.get(f"answers-{i}-text")  for i in range(0, 4)}
-    correct_answer = None
-
-    for _ in range(0, 4):
-      if self.request.POST.get(f"answers-{_}-is_correct", False):
-        correct_answer = _
-        break
-
-    self.question.answers.update(is_correct=False)
-    self.question.answers.filter(text=answers[correct_answer]).update(is_correct=True)
-
-    return self.form_valid(form, answer_forms)
+    if form.is_valid() and answer_forms.is_valid():
+      return self.form_valid(form, answer_forms)
+    return self.form_invalid(form, answer_forms)
 
   def form_valid(self, form, answer_forms):
 
@@ -135,7 +108,7 @@ class QuestionCreateUpdateView(CreateView):
       answer_forms.instance = self.object
       answer_forms.save()
 
-    return redirect('quiz_cms_details', pk=self.quiz.id)
+    return HttpResponseRedirect(reverse_lazy('quiz_cms_details', kwargs={'pk': self.quiz.id}))
 
   def form_invalid(self, form, answer_forms):
     return self.render_to_response(

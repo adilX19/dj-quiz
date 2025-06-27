@@ -30,7 +30,7 @@ class AnswerInline(admin.TabularInline):
 
 @admin.register(Quiz)
 class QuizAdmin(admin.ModelAdmin):
-  list_display = ['title', 'teacher', 'subject', 'starts_at', 'ends_at']
+  list_display = ['title', 'teacher', 'subject']
   inlines = [QuestionInline]
 
 @admin.register(Question)
