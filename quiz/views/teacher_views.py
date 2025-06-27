@@ -7,11 +7,9 @@ from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 from ..models import Quiz, Question, Answer, TakenQuiz, StudentAnswer
-from ..forms import QuestionForm, QuizForm
-from django.forms.models import inlineformset_factory
+from ..forms import QuestionForm, QuizForm, AnswersFormSet, AnswerForm
 
 from accounts.models import StudentProfile
-
 
 class TeacherQuizHomeView(ListView):
   template_name = 'teachers/home.html'
@@ -83,8 +81,21 @@ class QuestionCreateUpdateView(CreateView):
   def get(self, request, pk, *args, **kwargs):
     self.object = None
     form = QuestionForm(request.POST or None, instance=self.question)
-    AnswersFormSet = inlineformset_factory(Question, Answer, fields=['text', 'is_correct'], extra=4, max_num=4, can_delete=True)
     answer_forms = AnswersFormSet(instance=self.question, data=None)
+
+    existing = answer_forms.total_form_count()
+    if existing < 4:
+        AnswerFormSetFactory = inlineformset_factory(
+            Question,
+            Answer,
+            form=AnswerForm,
+            fields=['text', 'is_correct'],
+            extra=(4 - existing),
+            max_num=4,
+            can_delete=True
+        )
+        answer_forms = AnswerFormSetFactory(instance=self.question)
+
     return self.render_to_response(
       self.get_context_data(
         form=form, answer_forms=answer_forms
@@ -94,12 +105,21 @@ class QuestionCreateUpdateView(CreateView):
   def post(self, request, pk, *args, **kwargs):
     self.object = None
     form = QuestionForm(request.POST, instance=self.question)
-    AnswersFormSet = inlineformset_factory(Question, Answer, fields=['text', 'is_correct'], extra=4, max_num=4, can_delete=True)
     answer_forms = AnswersFormSet(instance=self.question, data=self.request.POST)
 
-    if form.is_valid() and answer_forms.is_valid():
-      return self.form_valid(form, answer_forms)
-    return self.form_invalid(form, answer_forms)
+    print(self.request.POST)
+    answers = {i: self.request.POST.get(f"answers-{i}-text")  for i in range(0, 4)}
+    correct_answer = None
+
+    for _ in range(0, 4):
+      if self.request.POST.get(f"answers-{_}-is_correct", False):
+        correct_answer = _
+        break
+
+    self.question.answers.update(is_correct=False)
+    self.question.answers.filter(text=answers[correct_answer]).update(is_correct=True)
+
+    return self.form_valid(form, answer_forms)
 
   def form_valid(self, form, answer_forms):
 

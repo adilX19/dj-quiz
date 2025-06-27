@@ -79,7 +79,7 @@
                                 <div class="card-body d-flex justify-content-between align-items-center">
                                     <div class="p-3">
                                         <h6 class="card-title mb-1">{{ taken.quiz.title }}</h6>
-                                        <p class="mb-0 text-muted">
+                                        <p class="mb-0 text-muted mt-3">
                                             Subject: <span class="lead" style="font-size: 15px;">{{ taken.quiz.subject.name }}</span><br>
                                             Score: <strong>{{ taken.obtained_marks }}</strong> / {{ taken.quiz.score }}
                                         </p>
@@ -104,8 +104,11 @@
                         <div class="card-body d-flex justify-content-between align-items-center">
                             <div class="p-3">
                                 <h6 class="card-title mb-1">{{ quiz.title }}</h6>
-                                <p class="mb-0 text-muted">
+                                <p class="mb-0 text-muted mt-3">
                                     Subject: <span class="lead" style="font-size: 15px;">{{ quiz.subject.name }}</span>
+                                </p>
+                                <p class="mb-0 text-muted">
+                                    By: <span class="lead" style="font-size: 15px;">{{ quiz.teacher.user.full_name }}</span>
                                 </p>
                             </div>
                             <a href="{% url 'quiz_details' quiz.id %}" class="btn btn-outline-primary btn-sm">Attempt</a>
@@ -122,32 +125,22 @@
             <div class="tab-pane fade" id="classroom" role="tabpanel" aria-labelledby="classroom-tab">
                 <h4 class="mb-2"></h4>
 
-                <div class="card p-3">
-                    <form method="POST" action="">
-                        {% csrf_token %}
-                        <label for="join_slug" class="form-label">🔗 Join a Classroom (via link or code)</label>
-                        <div class="input-group">
-                            <input type="text" name="slug" id="join_slug" class="form-control" placeholder="Enter classroom slug/code">
-                            <button type="submit" class="btn btn-outline-primary">Join</button>
-                        </div>
-                    </form>
-                </div>
-
-
                 <div class="row mt-2 p-2">
                     {% for classroom in student_classrooms %}
-                    <div class="col">
+                    <div class="col col-md-6 mb-3">
                         <div class="card h-100" style="border-left: 5px solid #0d6efd; box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;">
                             <div class="card-body">
                                 <h5 class="card-title">
                                     <i class="bi bi-house-door-fill text-primary me-2"></i>{{ classroom.name }}
                                 </h5>
-                                <p class="card-text text-muted mb-2">
+                                <p class="card-text text-muted mt-3">
                                     <strong>Students:</strong> {{ classroom.students.count }}
                                 </p>
-                                <p class="card-text">
-                                    <strong>Join Link:</strong><br>
-                                    <code>{{ request.build_absolute_uri }}</code>
+                                <p class="card-text text-muted">
+                                    <strong>Teacher:</strong> {{ classroom.teacher.user.full_name }}
+                                </p>
+                                <p class="card-text text-muted">
+                                    <strong>Quizzes:</strong> {{ classroom.quizzes.count }}
                                 </p>
                             </div>
                             <div class="card-footer bg-transparent border-0 d-flex justify-content-end">

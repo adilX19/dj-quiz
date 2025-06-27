@@ -34,12 +34,12 @@ class StudentHomeView(TemplateResponseMixin, View):
 
   def post(self, request, *args, **kwargs):
     selected_subjects_slugs = [slug for slug in list(request.POST.values())[1:]]
-    if selected_subjects_slugs:
+    if selected_subjects_slugs and self.subjects:
       for subject_slug in selected_subjects_slugs:
         subject = self.subjects.get(slug=subject_slug)
         if subject not in self.interest_subjects.all():
           self.interest_subjects.add(subject)        
-    return self.render_to_response({'message': 'Subjects Selected successfullyy'})
+    return self.render_to_response({'message': 'Subjects Selected successfullyy', 'reload': True})
 
 class StudentQuizDetailView(TemplateResponseMixin, View):
   template_name = 'students/details.html'

@@ -58,7 +58,7 @@ class JoinClassroomView(LoginRequiredMixin, View):
         if not classroom.students.filter(id=student_profile.id).exists():
             classroom.students.add(student_profile)
 
-        return redirect(f"http://127.0.0.1:8000/quizzes/classrooms/{classroom.slug}/")
+        return redirect(f"http://localhost:8000/quizzes/classrooms/{classroom.slug}/")
 
 
 class LeaveClassroomView(LoginRequiredMixin, View):

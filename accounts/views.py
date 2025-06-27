@@ -58,14 +58,16 @@ class SignUpSelectionView(TemplateView):
   template_name = 'accounts/authentications/signup_selection.html'
 
 class SignUpView(TemplateResponseMixin, View):
-	template_name = 'accounts/authentications/signup_modal_form.html'
+	template_name = None
 	model = None
 
 	def dispatch(self, request, user_role, *args, **kwargs):
 		if user_role == 'S':
 			self.model = StudentProfile
+			self.template_name = 'accounts/authentications/student_signup.html'
 		elif user_role == 'T':
 			self.model = TeacherProfile
+			self.template_name = 'accounts/authentications/teacher_signup.html'
 		return super(SignUpView, self).dispatch(request, user_role, *args, **kwargs)
 
 	def get(self, request, user_role, *args, **kwargs):
@@ -75,7 +77,7 @@ class SignUpView(TemplateResponseMixin, View):
 	def post(self, request, user_role, *args, **kwargs):
 		form = SignUpForm(request.POST)
 
-		if form.is_valid() and not request.is_ajax():
+		if form.is_valid():
 			cd = form.cleaned_data
 			user = User(
 				username=cd['username'],

@@ -17,9 +17,9 @@
     <p class="lead">YOU CAN EITHER SIGN-UP FOR A STUDENT's ACCOUNT OR FOR TEACHER's ACCOUNT</p>
     <br>
 
-    <button id="signup_as_student" class="btn btn-primary" type="button" name="button">SignUp as a Student</button>
+    <a id="signup_as_student" href="{% url 'student_signup' 'S' %}" class="btn btn-primary" type="button" name="button">SignUp as a Student</a>
 
-    <button id="signup_as_teacher" class="btn btn-success" type="button" name="button">SignUp as a Teacher</button>
+    <a id="signup_as_teacher" class="btn btn-success" href="{% url 'teacher_signup' 'T' %}" type="button" name="button">SignUp as a Teacher</a>
 
   </div>
 
@@ -29,16 +29,5 @@
 {% endblock %}
 
 {% block javascript %}
-<script type="text/javascript">
 
-  $(function () {
-    $("#signup_as_student").modalForm({
-      formURL: "{% url 'student_signup' 'S' %}"
-    });
-
-    $("#signup_as_teacher").modalForm({
-      formURL: "{% url 'teacher_signup' 'T' %}"
-    });
-  });
-  </script>
 {% endblock %}

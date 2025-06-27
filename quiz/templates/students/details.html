@@ -35,7 +35,7 @@
                 <p><strong>Date Created:</strong> <span class="text-muted">{{ quiz.date_created }}</span></p>
                 <p><strong>Questions:</strong> <span class="text-primary">{{ quiz.questions.count }}</span></p>
                 <p><strong>Attempts:</strong> <span class="text-primary">{{ quiz.takenquiz_set.count }} Students</span></p>
-                <p><strong>Subject:</strong> <span class="badge bg-{{ quiz.subject.badge_color }}">{{ quiz.subject }}</span></p>
+                <p><strong>Subject:</strong> <span class="badge" style="background-color: {{ quiz.subject.badge_color }};">{{ quiz.subject }}</span></p>
               </div>
 
               <div class="mt-3">
@@ -84,6 +84,7 @@
             </svg>
           </div>
           <h5 class="text-success">Your Score</h5>
+          <a target="_blank" href="{% url 'export_quiz_result_pdf' quiz.id request.user.student_profile.id %}" class="btn btn-outline-success">📄 Download Results</a>
         </div>
       </div>
       {% endif %}

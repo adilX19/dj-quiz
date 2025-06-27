@@ -1,17 +1,37 @@
 {% load custom_filters %}
 
-<h3>Choose your subjects:</h3>
-<form action="" method="POST">
-  {% csrf_token %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="card-title mb-4 text-center">Choose Your Subjects</h3>
+          <form action="" method="POST">
+            {% csrf_token %}
 
-  {% for subject in subjects %}
-    <label class="container">{{ subject.name }}
-      <input type="checkbox" value="{{ subject.slug }}" name="{{ subject.name }}"
-        {% if subject|already_selected_by:user %} checked="checked" {% endif %}
-      >
-      <span class="checkmark"></span>
-    </label>
-  {% endfor %}
+            <div class="row">
+              {% for subject in subjects %}
+              <div class="col-md-4 mb-3">
+                <div class="form-check border rounded p-3 bg-light" style="cursor:pointer;">
+                  <input class="form-check-input" type="checkbox"
+                         value="{{ subject.slug }}"
+                         id="subject-{{ forloop.counter }}"
+                         name="{{ subject.name }}"
+                         {% if subject|already_selected_by:user %} checked {% endif %}>
+                  <label class="form-check-label fw-semibold" for="subject-{{ forloop.counter }}" style="cursor:pointer;">
+                    {{ subject.name }}
+                  </label>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
 
-  <p><input type="submit" value="Submit"></p>
-</form>
+            <div class="text-center mt-4">
+              <button type="submit" class="btn btn-primary px-5">Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

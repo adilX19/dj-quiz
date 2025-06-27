@@ -1,4 +1,5 @@
 from django import forms
+from django.forms.models import inlineformset_factory
 from .models import Question, Answer, Quiz, Classroom
 
 class JoinClassroomForm(forms.Form):
@@ -51,3 +52,21 @@ class QuestionForm(forms.ModelForm):
       }),
       'score': forms.TextInput(attrs={'class': 'form-control w-50 mx-auto', 'placeholder': 'Add Score here...'})
     }
+
+class AnswerForm(forms.ModelForm):
+  is_correct = forms.BooleanField(required=False)
+
+  class Meta:
+      model = Answer
+      fields = ['text', 'is_correct']
+
+  def clean(self):
+    super().clean()
+    correct_answers = sum(
+        1 for form in self.forms
+        if form.cleaned_data.get('is_correct') and not form.cleaned_data.get('DELETE', False)
+    )
+    if correct_answers != 1:
+        raise forms.ValidationError("Exactly one answer must be marked as correct.")
+
+AnswersFormSet = inlineformset_factory(Question, Answer, fields=['text', 'is_correct'], extra=4)

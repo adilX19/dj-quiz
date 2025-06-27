@@ -22,14 +22,7 @@
         </li>
         {% endif %}
       </ul>
-      <span>
-        <form class="d-flex" action="" method="GET">
-          <div class="input-group" id="search-component">
-            <input type="text" name="query" id="search-input" class="form-control" placeholder="Search">
-            <button type="submit" id="search-button" class="input-group-text"><i class="fas fa-search"></i></button>
-          </div>
-        </form>
-      </span>
+
       <span class="p-3">
         <a href="{% url 'logout' %}" class="btn btn-sm btn-danger">logout</a>
       </span>
@@ -45,20 +38,3 @@
     </div>
   </div>
 </nav>
-
-<script>
-  document.getElementById('search-component').addEventListener('mouseover', hoverOverForm);
-  document.getElementById('search-component').addEventListener('mouseout', hoverOutForm);
-
-  function hoverOverForm(event) {
-    document.querySelector('#search-input').style.border = "2px solid #FFC107";
-    document.querySelector('#search-button').style.backgroundColor = "#FFC107";
-    document.querySelector('#search-button').style.color = "black";
-  }
-
-  function hoverOutForm(event) {
-    document.querySelector('#search-input').style.border = "none";
-    document.querySelector('#search-button').style.backgroundColor = "#424141";
-    document.querySelector('#search-button').style.color = "rgb(142, 142, 142)";
-  }
-</script>

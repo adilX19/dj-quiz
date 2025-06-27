@@ -9,7 +9,7 @@
       <h4 class="mb-0">➕ Add New Question</h4>
     </div>
 
-    <form method="POST" class="p-4">
+    <form method="POST" action="." class="p-4">
       {% csrf_token %}
 
       <!-- Question Fields -->
@@ -31,7 +31,7 @@
         {{ answer_forms.management_form }}
         <div class="row g-3">
           {% for answer_form in answer_forms %}
-          <div class="col-md-6">
+          <div class="col-md-6" id="answer-choice-{{ forloop.counter }}">
             <div class="card h-100 shadow-sm">
               <div class="card-body">
                 <div class="mb-3">
@@ -60,4 +60,12 @@
     </form>
   </div>
 </div>
+
+<script>
+  for(i=5; i <=8; i++) {
+    console.log(i, "removed")
+    document.querySelector(`#answer-choice-${i}`).remove();
+  }
+</script>
+
 {% endblock %}

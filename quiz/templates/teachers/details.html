@@ -92,10 +92,20 @@
     $('.questions').sortable({
       stop: function (event, ui) {
         let questions_order = {};
-        $('#question-list').children().each(function () {
-          $(this).find('.order').text($(this).index() + 1);
-          questions_order[$(this).data('id')] = $(this).index();
+
+        $('#question-list').children().each(function (index) {
+          const $card = $(this);
+          const questionId = $card.data('id');
+
+          // update visible order number (Q1, Q2, etc.)
+          $card.find('.fw-bold').first().html(function(_, oldHtml) {
+            return oldHtml.replace(/^Q\d+\./, 'Q' + (index + 1) + '.');
+          });
+
+          // collect order for backend
+          questions_order[questionId] = index;
         });
+
         $.ajax({
           type: 'POST',
           url: '{% url "order_questions" %}',

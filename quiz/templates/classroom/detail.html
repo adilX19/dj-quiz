@@ -16,12 +16,8 @@
                         <strong>Teacher:</strong> {{ classroom.teacher.user.get_full_name }}
                     </p>
                     <p class="text-muted">
-                        <strong>Slug:</strong> <code>{{ classroom.slug }}</code>
+                        <strong>Class ID:</strong> <code>{{ classroom.slug }}</code>
                     </p>
-                    <div class="alert alert-info mt-3">
-                        <strong>Join Link:</strong><br>
-                        <code>{{ request.build_absolute_uri }}join</code>
-                    </div>
                 </div>
             </div>
 

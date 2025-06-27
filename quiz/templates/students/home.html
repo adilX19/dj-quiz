@@ -100,4 +100,17 @@
     </div>
   </div>
 </div>
+
+
+<script type="text/javascript">
+
+  setTimeout(() => {
+    const reload = "{{ reload }}";
+
+    if (reload == "True") {
+      window.location.href = 'http://localhost:8000/quizzes/students/home/';
+    }
+  }, 3000)
+
+</script>
 {% endblock %}
