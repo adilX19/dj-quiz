@@ -38,7 +38,7 @@
         <h4 class="mb-2">🎯 Your Interests</h4>
         {% if student.interests.all %}
             {% for subject in student.interests.all %}
-                <span class="badge bg-{{ subject.badge_color }} rounded-pill">{{ subject.name }}</span>
+                <span class="badge bg-{{ subject.badge_color }} rounded-pill" style="background-color: {{ subject.badge_color }};">{{ subject.name }}</span>
             {% endfor %}
         {% else %}
             <p class="text-muted">No interests added yet.</p>
